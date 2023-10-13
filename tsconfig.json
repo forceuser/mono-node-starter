@@ -1,0 +1,64 @@
+{
+	"vueCompilerOptions": {
+		"experimentalDisableTemplateSupport": false,
+		"experimentalSuppressInvalidJsxElementTypeErrors": true,
+		"experimentalDowngradePropsAndEmitsToSetupReturnOnScriptSetup": false,
+		"experimentalImplicitWrapComponentOptionsWithDefineComponent": false,
+		"experimentalAllowTypeNarrowingInInlineHandlers": true,
+		"target": 3
+	},
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"strict": true,
+		"importHelpers": true,
+		"moduleResolution": "node",
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"sourceMap": true,
+		"allowJs": true,
+		"baseUrl": ".",
+		"outDir": "ts-dist",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"jsx": "preserve",
+		"types": [
+			"vite/client"
+		],
+		"paths": {
+			"@/*": [
+				"app/src/*"
+			],
+			"#app/*": [
+				"app/src/*"
+			],
+			"#common/*": [
+				"common/*"
+			],
+			"#server/*": [
+				"server/*"
+			],
+			"#injection/*": [
+				"injection/*"
+			]
+		},
+		"plugins": [
+			{ "transform": "typescript-transform-paths" },
+			{ "transform": "typescript-transform-paths", "afterDeclarations": true }
+		]
+	},
+	"exclude": [
+		"node_modules",
+		"ts-dist",
+		"build*/**",
+		"release*/**"
+	],
+	"include": [
+		"./**/*"
+	]
+}
