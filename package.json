@@ -18,6 +18,7 @@
 		"bump-alpha": "npm version prerelease --preid alpha --no-git-tag-version"
 	},
 	"exports": {
+		".": "./src/index.js",
 		"./*": "./src/*"
 	},
 	"imports": {
