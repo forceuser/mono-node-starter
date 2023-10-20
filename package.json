@@ -1,15 +1,31 @@
 {
 	"name": "mono-node-starter",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "",
-	"main": "index.js",
+	"main": "src/index.js",
 	"type": "module",
 	"scripts": {
-		"test": "vitest run --coverage"
+		"test": "vitest run --coverage",
+		"eslint": "eslint .",
+		"eslint-fix": "eslint --fix .",
+		"release": "git add . && git commit -m",
+		"postrelease": "git push --all",
+		"bump": "npm --no-git-tag-version version patch",
+		"bump-minor": "npm version minor --no-git-tag-version",
+		"bump-major": "npm version major --no-git-tag-version",
+		"bump-rc": "npm version prerelease --preid rc --no-git-tag-version",
+		"bump-beta": "npm version prerelease --preid beta --no-git-tag-version",
+		"bump-alpha": "npm version prerelease --preid alpha --no-git-tag-version"
+	},
+	"exports": {
+		"./*": "./src/*"
 	},
 	"imports": {
 		"#root/*": {
-			"default": "./*"
+			"default": "./src/*"
+		},
+		"#common/*": {
+			"default": "./src/common/*"
 		}
 	},
 	"author": "",
@@ -18,7 +34,9 @@
 		"dotenv-flow": "^4.0.0",
 		"fs-extra": "^11.1.1",
 		"globby": "^13.2.2",
+		"http-proxy-middleware": "^2.0.6",
 		"json-stringify-safe": "^5.0.1",
+		"micromatch": "^4.0.5",
 		"triple-beam": "^1.4.1",
 		"vite": "^4.4.11",
 		"vitest": "^0.34.6",

@@ -45,18 +45,18 @@ export async function starter (createAppFn, {
 					// eslint-disable-next-line require-atomic-updates
 					$app.logger = await (
 						(typeof onCreateLogger === "function")
-						? onCreateLogger({$app})
-						: initLoggerV1({
-							graylog: {
-								address: $app.config.glAddress,
-								port: $app.config.glPort,
-								proto: $app.config.glProto,
-								level: $app.config.glLevel,
-							},
-							console: {
-								level: $app.config.logLevel,
-							}
-						})
+							? onCreateLogger({$app})
+							: initLoggerV1({
+								graylog: {
+									address: $app.config.glAddress,
+									port: $app.config.glPort,
+									proto: $app.config.glProto,
+									level: $app.config.glLevel,
+								},
+								console: {
+									level: $app.config.logLevel,
+								},
+							})
 					);
 
 					$app.logger.log({level: "info", message: `env prefix is: ${$app.envPrefix}`});

@@ -21,17 +21,17 @@ export async function parseAppArgs () {
 export async function initConfigListV1 ({pkg, packageDir, envPrefix, envDir} = {}) {
 	const argv = parseAppArgs();
 	const configList = [];
-	
+
 	const config_dotEnv = envToConfig(readDotenv(envDir, false), ["VITE", envPrefix, ["gl", "gl_"]]);
 	const config_processEnv = envToConfig(readEnv(), ["VITE", envPrefix, ["gl", "gl_"]]);
 	const config_package = readConfigYaml(packageDir);
 	const config_userHome = readConfigYaml(nodePath.join(...[os.homedir(), "./app-config", pkg.appGroup, pkg.name].filter($ => $)), {configType: argv.configType});
-	
+
 	configList.push(config_dotEnv);
 	configList.push(config_package);
 	configList.push(config_userHome);
 	configList.push(config_processEnv);
-	
+
 	if (argv.properties) {
 		const config_properties = await readConfigProps(argv.properties);
 		configList.push(config_properties);

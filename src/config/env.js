@@ -1,7 +1,7 @@
 import process from "node:process";
 import fs from "fs-extra";
 import dotenvFlow from "dotenv-flow";
-import modifyCase from "#root/utils/modify-case.js";
+import modifyCase from "#common/modify-case.js";
 
 export function readDotenv (envDir, extendProcessEnv = true) {
 	const filenames = dotenvFlow.listFiles(envDir, {node_env: process.env.VITE_APP_MODE || process.env.NODE_ENV || "development"});
@@ -11,7 +11,6 @@ export function readDotenv (envDir, extendProcessEnv = true) {
 	}
 	return result;
 }
-
 
 
 export function envToConfig (env, prefixes) {

@@ -60,9 +60,7 @@ export function readConfig (file) {
 	let result = {};
 	if (fs.pathExistsSync(file)) {
 		const fp = nodePath.resolve(process.cwd(), file);
-		console.log("config properties file path", fp);
 		const content = fs.readFileSync(fp, "utf-8");
-		console.log("config properties content", content);
 		result = content.split("\n")
 			.map($ => $.trim())
 			.filter($ => !$.startsWith("#"))
@@ -71,7 +69,6 @@ export function readConfig (file) {
 				set(src, path, value);
 				return src;
 			}, result);
-		console.log("config properties parsed result", result);
 	}
 
 	return result;
