@@ -7,6 +7,7 @@ import yargs from "yargs";
 import {readConfig as readConfigYaml} from "./config/yaml.js";
 import {readConfig as readConfigProps} from "./config/properties.js";
 import {readDotenv, readEnv, envToConfig} from "./config/env.js";
+import {pkg as _pkg, packageDir as _packageDir, envPrefix as _envPrefix, envDir as _envDir} from "#common/node/package.js";
 
 export async function parseAppArgs () {
 	const {argv} = await yargs(process.argv.slice(2))
@@ -18,8 +19,13 @@ export async function parseAppArgs () {
 	return argv;
 }
 
-export async function initConfigListV1 ({pkg, packageDir, envPrefix, envDir} = {}) {
-	const argv = parseAppArgs();
+export async function initConfigListV1 ({
+	pkg = _pkg,
+	packageDir = _packageDir,
+	envPrefix = _envPrefix,
+	envDir = _envDir,
+} = {}) {
+	const argv = await parseAppArgs();
 	const configList = [];
 
 	const config_dotEnv = envToConfig(readDotenv(envDir, false), ["VITE", envPrefix, ["gl", "gl_"]]);

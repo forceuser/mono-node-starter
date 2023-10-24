@@ -16,7 +16,6 @@ export const removeUndefinedFormatter = format((info, opts) => {
 	return info;
 });
 
-
 export const loggerConsoleFormat = format(info => {
 	const stringifiedRest = toJson(Object.assign({}, info, {
 		level: undefined,
@@ -36,18 +35,23 @@ export const loggerConsoleFormat = format(info => {
 	return info;
 });
 
+const escapeSensitiveString = (str) => {
+	return JSON.stringify(str || "").replace(/("[^"]*?(pass|token|ticket).*?(?:"|\\")+\:(?:"|\\")+)(.*?)((?:"|\\")+[,}])/gi, "$1*****$4");
+};
+
 export const escapeSensitiveFormatter = format((info) => {
-	Object.keys(info).filter(key => key !== "message" && key !== "type").forEach(key => {
-		if (["pass", "token", "ticket"].some($ => key.toLowerCase().includes($))) {
-			info[key] = "*****";
-		}
-		else {
-			info[key] = JSON.parse(JSON.stringify(info[key]).replace(/("[^"]*?(pass|token|ticket).*?(?:"|\\")+\:(?:"|\\")+)(.*?)((?:"|\\")+[,}])/gi, "$1*****$4"));
-		}
-	});
+	Object.keys(info)
+		.filter(key => key !== "message" && key !== "type").forEach(key => {
+			if (["pass", "token", "ticket"].some($ => key.toLowerCase().includes($))) {
+				info[key] = "*****";
+			}
+			else {
+				info[key] = JSON.parse(escapeSensitiveString(JSON.stringify(info[key] || "")));
+			}
+		});
 
 	if (info.message) {
-		info.message = info.message.replace(/("[^"]*?(pass|token|ticket).*?(?:"|\\")+\:(?:"|\\")+)(.*?)((?:"|\\")+[,}])/gi, "$1*****$4");
+		info.message = escapeSensitiveString(info.message);
 	}
 	return info;
 });

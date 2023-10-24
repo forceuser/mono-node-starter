@@ -25,6 +25,18 @@
 		"#root/*": {
 			"default": "./src/*"
 		},
+		"#logger/*": {
+			"default": "./src/logger/*"
+		},
+		"#svc/*": {
+			"default": "./src/svc/*"
+		},
+		"#config/*": {
+			"default": "./src/config/*"
+		},
+		"#proxy/*": {
+			"default": "./src/proxy/*"
+		},
 		"#common/*": {
 			"default": "./src/common/*"
 		}

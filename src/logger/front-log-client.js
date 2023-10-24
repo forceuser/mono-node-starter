@@ -2,7 +2,6 @@ import {uniqId} from "#common/random.js";
 
 const LOG_MAX_COUNT_IN_CHUNK = 15;
 const LOG_MAX_SIZE_IN_CHUNK = 3000;
-const FRONT_LOGER_PATH = "./front/logger";
 
 const instance = {
 	frontLoggerReloadIdx: 0,
@@ -58,13 +57,18 @@ export function formatDuration (delta, showMs = true) {
 	}
 }
 
-export function initFrontLogs ({vueInstance, appVersion} = {}) {
+export function initFrontLogs ({
+	vueInstance,
+	appVersion,
+	url = new URL("./front/logger", window.location.origin),
+} = {}) {
 	if (instance.initialized) {
 		return;
 	}
 	if (appVersion) {
 		instance.appVersion = appVersion;
 	}
+	instance.url = url;
 	instance.frontLoggerReloadIdx = +(sessionStorage.frontLoggerReloadIdx || "0");
 	instance.frontLoggerReloadIdx++;
 	sessionStorage.frontLoggerReloadIdx = instance.frontLoggerReloadIdx;
@@ -199,7 +203,7 @@ export function errorToString (e, stackTrace = true) {
 
 export function sendFrontLogs () {
 	try {
-		const url = new URL(FRONT_LOGER_PATH, window.location.origin.toString());
+		const url = new URL(instance.url);
 		const pageUrl = new URL(window.location.href);
 		if (pageUrl.searchParams.get("traceId")) {
 			url.searchParams.set("traceId", pageUrl.searchParams.get("traceId"));
@@ -211,7 +215,18 @@ export function sendFrontLogs () {
 				logsToSend.push(instance.logs.shift());
 				str = JSON.stringify(logsToSend);
 			}
-			navigator.sendBeacon(url, JSON.stringify(logsToSend));
+			if (navigator.sendBeacon) {
+				navigator.sendBeacon(url, JSON.stringify(logsToSend));
+			}
+			else {
+				fetch(url, {
+					method: "POST",
+					headers: {
+						"content-type": "application/json",
+					},
+					body: JSON.stringify(logsToSend),
+				});
+			}
 		}
 	}
 	catch (error) {

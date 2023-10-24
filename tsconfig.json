@@ -31,20 +31,23 @@
 			"vite/client"
 		],
 		"paths": {
-			"@/*": [
-				"app/src/*"
-			],
-			"#app/*": [
-				"app/src/*"
+			"#root/*": [
+				"src/*"
 			],
 			"#common/*": [
-				"common/*"
+				"src/common/*"
 			],
-			"#server/*": [
-				"server/*"
+			"#logger/*": [
+				"src/logger/*"
+			],
+			"#config/*": [
+				"src/config/*"
+			],
+			"#proxy/*": [
+				"src/proxy/*"
 			],
 			"#injection/*": [
-				"injection/*"
+				"src/injection/*"
 			]
 		},
 		"plugins": [

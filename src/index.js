@@ -1,10 +1,14 @@
 import process from "node:process";
 import yargs from "yargs";
 import {initLoggerV1, toJson} from "#root/logger/index.js";
+import {uniqId} from "#common/random.js";
+import {pkg as defaultPkg, envPrefix} from "#common/node/package.js";
+import {initConfigListV1} from "#root/app-config.js";
+import {startApp} from "#root/server.js";
 
 export async function starter (createAppFn, {
 	$app,
-	pkg,
+	pkg = defaultPkg,
 	onCreateLogger,
 	onBuildConfig,
 	onGetConfigList,
@@ -13,10 +17,16 @@ export async function starter (createAppFn, {
 	if (!$app) {
 		$app = createAppFn();
 		$app.health = $app.health || {};
+		$app.envPrefix = $app.envPrefix == null ? envPrefix : $app.envPrefix;
 		$app.name = $app.name || pkg.name;
 		$app.version = $app.version || pkg.version;
+		$app.createTraceId = $app.createTraceId || (() => uniqId(26));
+		$app.isProd = process.env.NODE_ENV === "production";
+		$app.isDev = process.env.NODE_ENV === "development";
+		$app.isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
 	}
-	const configList = await onGetConfigList?.({$app}) || [];
+
+	const configList = await (onGetConfigList?.({$app}) || initConfigListV1({envPrfix: $app.envPrefix}));
 	console.log("configList", configList);
 
 	const configRaw = Object.assign({}, ...configList);
@@ -47,6 +57,7 @@ export async function starter (createAppFn, {
 						(typeof onCreateLogger === "function")
 							? onCreateLogger({$app})
 							: initLoggerV1({
+								$app,
 								graylog: {
 									address: $app.config.glAddress,
 									port: $app.config.glPort,
@@ -65,6 +76,9 @@ export async function starter (createAppFn, {
 
 					if (typeof onStartApp === "function") {
 						await onStartApp($app);
+					}
+					else {
+						await startApp($app);
 					}
 				},
 				builder: yargs => {

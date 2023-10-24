@@ -17,6 +17,7 @@ export const packageDir = nodePath.dirname(packagePath);
 export let pkg = getPackageInfo();
 
 export const envPrefix = `${pkg.name.replace(/-/, "_").toUpperCase()}_APP`;
+export const envDir = nodePath.resolve(packageDir, "env")
 
 export function getPackageInfo () {
 	return JSON.parse(fs.readFileSync(packagePath, "utf8"));
