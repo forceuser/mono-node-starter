@@ -146,8 +146,6 @@ export async function startServer ($app) {
 			},
 		});
 
-
-
 		$app.fastify.listen({
 			port: $app.config.port,
 			host: $app.config.host,
