@@ -28,27 +28,35 @@ export function reloadPackageInfo () {
 	return pkg;
 }
 
-export const getAliasesFromSubpathImports = (format = "vite") => {
+export const getAliasesFromSubpathImports = (format = "vite", atAlias = true) => {
 	if (format === "vite") {
+		const items = Object.fromEntries(
+			Object.entries(pkg?.imports || {})
+				.map(([key, value]) => {
+					return [key.replace("*", ""), nodePath.join(nodePath.resolve(packageDir, value.default.replace("*", "")), "/")];
+				})
+		);
 		return {
-			"@/": `${nodePath.resolve(packageDir, "front")}/`,
-			...Object.fromEntries(
-				Object.entries(pkg?.imports || {})
-					.map(([key, value]) => {
-						return [key.replace("*", ""), nodePath.join(nodePath.resolve(packageDir, value.default.replace("*", "")), "/")];
-					})
+			...(atAlias
+				? ({"@/": items[0]})
+				: {}
 			),
+			...items,
 		};
 	}
 	else if (format === "tsconfig") {
+		const items = Object.fromEntries(
+			Object.entries(pkg?.imports || {})
+				.map(([key, value]) => {
+					return [key, [nodePath.relative("./", value.default)]];
+				})
+		);
 		return {
-			"@/*": [`front/*`],
-			...Object.fromEntries(
-				Object.entries(pkg?.imports || {})
-					.map(([key, value]) => {
-						return [key, [nodePath.relative("./", value.default)]];
-					})
+			...(atAlias
+				? ({"@/*": items[0]})
+				: {}
 			),
+			...items,
 		};
 	}
 };

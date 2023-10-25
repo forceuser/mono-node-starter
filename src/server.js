@@ -6,6 +6,14 @@ import {toObject} from "#common/utils.js";
 import {getVhost} from "#config/vhost-config.js";
 import {IAMSessionGen} from "#svc/iam.js";
 
+if (!("isPrimary" in cluster)) {
+	Object.defineProperty(cluster, "isPrimary", {
+		get () {
+			return cluster.isMaster;
+		},
+	});
+}
+
 export async function startApp ($app) {
 	if (typeof $app?.initApp !== "function") {
 		throw new Error("$app must have initApp function");
@@ -77,7 +85,7 @@ export async function startServer ($app) {
 		catch {}
 	});
 
-	if ($app.isDev && $app.config.vhost) {
+	if ($app.config.vhost) {
 		try {
 			const vhost = getVhost();
 
@@ -140,7 +148,10 @@ export async function startServer ($app) {
 
 
 
-		$app.fastify.listen($app.config.port, $app.config.host, (error, address) => {
+		$app.fastify.listen({
+			port: $app.config.port,
+			host: $app.config.host,
+		}, (error, address) => {
 			if (error) {
 				$app.health.error = "Http server error";
 				$app.logger.log({level: "error", message: `error listening http server: ${toJson(toObject(error))}`});
