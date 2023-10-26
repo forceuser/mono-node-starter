@@ -67,7 +67,29 @@ export const toObject = (src) => {
 };
 
 export const functionValue = (f, ...args) => (typeof f === "function" ? f(...args) : f);
-export const ifelse = (condition, nodes, elseNodes) => {
+export const ifelse = (condition, node, elseNode) => {
+	condition = functionValue(condition);
+	if (condition) {
+		return functionValue(node);
+	}
+	else {
+		return functionValue(elseNode);
+	}
+};
+
+ifelse.obj = (condition, node, elseNode) => {
+	condition = functionValue(condition);
+	if (condition) {
+		node = functionValue(node);
+		return {...(node || {})};
+	}
+	else {
+		elseNode = functionValue(elseNode);
+		return {...(elseNode || {})};
+	}
+};
+
+ifelse.list = (condition, nodes, elseNodes) => {
 	condition = functionValue(condition);
 	if (condition) {
 		nodes = functionValue(nodes);

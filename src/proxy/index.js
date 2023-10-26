@@ -39,10 +39,11 @@ export async function initProxy (proxyRules, {$app, logger, fastify, skipPaths =
 		const prefix = rule.split(":")[0];
 		const target = rule.split(":").slice(1).join(":");
 		// const logProvider = logProviderFactory(prefix, logger);
-		proxy[prefix] = fastify.use(createProxyMiddleware(prefix, {
+		proxy[prefix] = createProxyMiddleware(prefix, {
 			target,
 			secure: false,
 			changeOrigin: true,
+			pathFilter: prefix,
 			pathRewrite: {[`^${prefix}`]: ""},
 			ws: true,
 			onProxyRes (proxyRes, req, res) {
@@ -96,8 +97,9 @@ export async function initProxy (proxyRules, {$app, logger, fastify, skipPaths =
 			},
 			// logLevel: "debug",
 			// logProvider,
-		}));
+		});
 
+		fastify.use(proxy[prefix]);
 		fastify.server.on("upgrade", (...args) => {
 			const [req, socket, head] = args;
 			const message = `[front log] PROXYUPGRADE [${req.method}] [pending] ${req.path} -> ${req.protocol}//${req.hostname}${req.path}`;

@@ -28,7 +28,7 @@ export function reloadPackageInfo () {
 	return pkg;
 }
 
-export const getAliasesFromSubpathImports = (format = "vite", atAlias = true) => {
+export const getAliasesFromSubpathImports = (format = "vite", atAlias = true, onlyAtAlias = false) => {
 	const findEntry = (atAlias, entries) => (typeof atAlias === "string" ? entries.find($ => $[0] === atAlias || $[0].replace(/\/\*?$/, "") === atAlias) : entries?.[0])?.[1];
 
 	if (format === "vite") {
@@ -41,7 +41,7 @@ export const getAliasesFromSubpathImports = (format = "vite", atAlias = true) =>
 		if (atAlias) {
 			atEntry = ["@/", findEntry(atAlias, entries)];
 		}
-		const items = Object.fromEntries([atEntry, ...entries].filter($ => $));
+		const items = Object.fromEntries([atEntry, ...(onlyAtAlias ? [] : entries)].filter($ => $));
 
 		console.log("ALIASES vite", items);
 
@@ -58,7 +58,7 @@ export const getAliasesFromSubpathImports = (format = "vite", atAlias = true) =>
 		if (atAlias) {
 			atEntry = ["@/*", findEntry(atAlias, entries)];
 		}
-		const items = Object.fromEntries([atEntry, ...entries].filter($ => $));
+		const items = Object.fromEntries([atEntry, ...(onlyAtAlias ? [] : entries)].filter($ => $));
 
 		console.log("ALIASES tsconfig", items);
 
