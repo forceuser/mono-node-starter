@@ -56,7 +56,7 @@ export const escapeSensitiveFormatter = format((info) => {
 	return info;
 });
 
-export async function initLoggerV1 ({$app, graylog, console} = {}) {
+export async function initLoggerV1 ({$app, graylog} = {}) {
 	const logger = createLogger({
 		// format: format.json(),
 		exitOnError: false,
