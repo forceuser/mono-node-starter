@@ -4,7 +4,7 @@ import dotenvFlow from "dotenv-flow";
 import modifyCase from "#common/modify-case.js";
 
 export function readDotenv (envDir, extendProcessEnv = true) {
-	const filenames = dotenvFlow.listFiles(envDir, {node_env: process.env.VITE_APP_MODE || process.env.NODE_ENV || "development"});
+	const filenames = dotenvFlow.listFiles({path: envDir, node_env: process.env.VITE_APP_MODE || process.env.NODE_ENV || "development"});
 	const result = dotenvFlow.parse(filenames.filter(fn => fs.pathExistsSync(fn)));
 	if (extendProcessEnv) {
 		Object.assign(process.env, result);

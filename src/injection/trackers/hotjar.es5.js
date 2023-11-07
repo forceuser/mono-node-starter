@@ -4,7 +4,7 @@
 		function () {
 			(h.hj.q = h.hj.q || []).push(arguments);
 		};
-	h._hjSettings = { hjid: "%%hotjar_id%%" };
+	h._hjSettings = {hjid: "%%hotjar_id%%"};
 	a = o.getElementsByTagName("head")[0];
 	r = o.createElement("script");
 	r.async = 1;

@@ -1,6 +1,6 @@
 (function supportsWebp () {
 	try {
-		let img = new Image();
+		var img = new Image();
 		img.onload = img.onerror = function () {
 			if (img.height === 2) {
 				document.documentElement.classList.add("sup--webp");

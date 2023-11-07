@@ -1,8 +1,8 @@
 (function supportsAvif () {
 	try {
-		let img = new Image();
+		var img = new Image();
 		img.onload = img.onerror = function () {
-			if (img.height === 1) {
+			if (img.naturalHeight === 1) {
 				document.documentElement.classList.add("sup--avif");
 			}
 		};
