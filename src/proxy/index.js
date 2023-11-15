@@ -55,23 +55,24 @@ export async function initProxy (proxyRules, {$app, logger, fastify, skipPaths =
 
 					if (!skipPaths.some(p => req.path.startsWith(p))) {
 						const logId = req.headers["x-log-id"];
+						const traceId = req.headers["trace-id"] || req.headers.traceid;
+						const resTraceId = proxyRes.headers["trace-id"] || proxyRes.headers.traceid;
+
 						prev.push("trace-id");
 						prev.push("traceid");
 						prev.push("x-log-id");
 						proxyRes.headers["Access-Control-Allow-Headers"] = prev.join(",");
+
 						if (req.headers["x-log-id"]) {
 							proxyRes.headers["x-log-id"] = logId;
 						}
 
-						const message = `[front log] PROXYRES [${req.method}] [${proxyRes.statusCode}] ${req.path} -> ${proxyRes.req.protocol}//${proxyRes.req.host}${proxyRes.req.path} [${proxyRes?.headers?.["content-length"]}]`;
-
 						logger?.log?.({
 							level: "http",
-							message,
-							traceId: req.headers["trace-id"] ||
-								req.headers.traceid,
-							resTraceId: proxyRes.headers["trace-id"] ||
-								proxyRes.headers.traceid, logId: logId && `${logId}-${Date.now().toString().substr(-7)}`,
+							message: `[front log] PROXYRES [${req.method}] [${proxyRes.statusCode}] ${req.path} -> ${proxyRes.req.protocol}//${proxyRes.req.host}${proxyRes.req.path} [${proxyRes?.headers?.["content-length"]}]`,
+							traceId,
+							resTraceId,
+							logId: logId && `${logId}-${Date.now().toString().substr(-7)}`,
 							headers: toJson(toObject(req.headers || {})),
 							resHeaders: toJson(toObject(proxyRes.headers || {})),
 						});
@@ -82,12 +83,13 @@ export async function initProxy (proxyRules, {$app, logger, fastify, skipPaths =
 			onProxyReq (proxyReq, req, res) {
 				try {
 					if (!skipPaths.some(p => req.path.startsWith(p))) {
-						const message = `[front log] PROXYREQ [${req.method}] [pending] ${req.path} -> ${req.protocol}//${req.hostname}${req.path}`;
 						const logId = req.headers["x-log-id"];
+						const traceId = req.headers["trace-id"] || req.headers.traceid;
+
 						logger?.log?.({
 							level: "http",
-							message,
-							traceId: req.headers["trace-id"] || req.headers.traceid,
+							message: `[front log] PROXYREQ [${req.method}] [pending] ${req.path} -> ${req.protocol}//${req.hostname}${req.path}`,
+							traceId,
 							logId: logId && `${logId}-${Date.now().toString().substr(-7)}`,
 							headers: toJson(toObject(req.headers || {})),
 						});
@@ -102,16 +104,27 @@ export async function initProxy (proxyRules, {$app, logger, fastify, skipPaths =
 		fastify.use(proxy[prefix]);
 		fastify.server.on("upgrade", (...args) => {
 			const [req, socket, head] = args;
-			const message = `[front log] PROXYUPGRADE [${req.method}] [pending] ${req.path} -> ${req.protocol}//${req.hostname}${req.path}`;
 			const logId = req.headers["x-log-id"];
+			const traceId = req.headers["trace-id"] || req.headers?.traceid;
+
 			logger?.log?.({
-				level: "http",
-				message,
-				traceId: req.headers["trace-id"] || req.headers.traceid,
+				level: "info",
+				message: `[front log] PROXY-UPGRADE [try] [${req.method}] ${req.url} / ${req.headers?.origin}`,
+				traceId,
 				logId: logId && `${logId}-${Date.now().toString().substr(-7)}`,
 				headers: toJson(toObject(req.headers || {})),
 			});
-			if (req.url.startsWith(prefix)) {
+
+			if (req.url.startsWith(prefix) && !socket.preparingProxyRequest) {
+				socket.preparingProxyRequest = true;
+
+				logger?.log?.({
+					level: "info",
+					message: `[front log] PROXY-UPGRADE [performing] [${req.method}] ${req.url} / ${req.headers?.origin}`,
+					traceId,
+					logId: logId && `${logId}-${Date.now().toString().substr(-7)}`,
+					headers: toJson(toObject(req.headers || {})),
+				});
 				return proxy[prefix].upgrade(...args);
 			}
 		});

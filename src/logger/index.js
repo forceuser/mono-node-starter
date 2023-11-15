@@ -35,9 +35,9 @@ export const loggerConsoleFormat = format(info => {
 	return info;
 });
 
-const escapeSensitiveString = (str) => {
-	return ((typeof str === "string" && str.startsWith("\"") && str.endsWith("\"")) ? str : JSON.stringify(str || "")).replace(/("[^"]*?(pass|token|ticket).*?(?:"|\\")+\:(?:"|\\")+)(.*?)((?:"|\\")+[,}])/gi, "$1*****$4");
-};
+const toJSONString = (str) => ((typeof str === "string" && str.startsWith("\"") && str.endsWith("\"")) ? str : JSON.stringify(str || ""));
+const escapeSensitiveString = (str) => toJSONString(str).replace(/("[^"]*?(pass|token|ticket).*?(?:"|\\")+\:(?:"|\\")+)(.*?)((?:"|\\")+[,}])/gi, "$1*****$4");
+const fromJSONString = (str) => ((typeof str === "string" && str.startsWith("\"") && str.endsWith("\"")) ? JSON.parse(str) : str);
 
 export const escapeSensitiveFormatter = format((info) => {
 	Object.keys(info)
@@ -51,7 +51,7 @@ export const escapeSensitiveFormatter = format((info) => {
 		});
 
 	if (info.message) {
-		info.message = escapeSensitiveString(info.message);
+		info.message = fromJSONString(escapeSensitiveString(info.message));
 	}
 	return info;
 });

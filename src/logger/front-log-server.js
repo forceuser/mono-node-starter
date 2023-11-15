@@ -45,9 +45,11 @@ export function initFrontLogServer ({url = "/front/logger", fastify, $app, logge
 							logger?.log?.({
 								level: "info",
 								message: `[front log] ${message || "no-message"}`,
-								logObject: toJson(logObject),
+								...logObject,
 								sessionId,
 								traceId,
+								clientIp: request?.ip,
+								rawIp: request?.raw?.connection?.remoteAddress,
 							});
 						}
 						catch (error) {
