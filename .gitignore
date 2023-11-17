@@ -37,3 +37,4 @@ yarn-error.log*
 /coverage
 
 .local/
+mono-node-starter-*.tgz

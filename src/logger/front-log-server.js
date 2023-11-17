@@ -42,15 +42,29 @@ export function initFrontLogServer ({url = "/front/logger", fastify, $app, logge
 							if (pageUrl) {
 								logObject.pageUrl = pageUrl;
 							}
-							logger?.log?.({
-								level: "info",
-								message: `[front log] ${message || "no-message"}`,
-								...logObject,
-								sessionId,
-								traceId,
-								clientIp: request?.ip,
-								rawIp: request?.raw?.connection?.remoteAddress,
-							});
+							try {
+								logger?.log?.({
+									level: "info",
+									message: `[front log] [simple] ${message || "no-message"}`,
+									sessionId,
+									traceId,
+									...logObject,
+								});
+
+								logger?.log?.({
+									level: "info",
+									message: `[front log] ${message || "no-message"}`,
+									sessionId,
+									traceId,
+									clientIp: request?.ip,
+									rawIp: request?.raw?.connection?.remoteAddress,
+									...logObject,
+								});
+							}
+							catch (error) {
+								console.log("front logger error", error, message);
+							}
+
 						}
 						catch (error) {
 							logger?.log?.({level: "error", message: "[front log pre] item error", error: error.message});

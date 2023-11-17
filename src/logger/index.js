@@ -56,7 +56,8 @@ export const escapeSensitiveFormatter = format((info) => {
 	return info;
 });
 
-export async function initLoggerV1 ({$app, graylog} = {}) {
+export async function initLoggerV1 (options = {}) {
+	const {$app} = options;
 	const logger = createLogger({
 		// format: format.json(),
 		exitOnError: false,
@@ -71,21 +72,21 @@ export async function initLoggerV1 ({$app, graylog} = {}) {
 		transports: [],
 	});
 
-	if (graylog?.address && graylog?.port) {
+	if (options?.graylog?.address && options?.graylog?.port) {
 		console.log(`using graylog as logger`, {
-			protocol: graylog?.proto,
-			host: graylog?.address,
-			port: graylog?.port,
+			protocol: options?.graylog?.proto,
+			host: options?.graylog?.address,
+			port: options?.graylog?.port,
 		});
 
 		const WinstonGelf = (await import("winston-gelf")).default;
 		const transport = new WinstonGelf({
 			handleExceptions: true,
 			gelfPro: {
-				adapterName: graylog?.proto,
+				adapterName: options?.graylog?.proto,
 				adapterOptions: {
-					host: graylog?.address,
-					port: graylog?.port,
+					host: options?.graylog?.address,
+					port: options?.graylog?.port,
 				},
 			},
 		});
@@ -115,16 +116,16 @@ export async function initLoggerV1 ({$app, graylog} = {}) {
 	};
 
 	if (logger.transports$.graylog) {
-		logger.log({level: "info", message: `graylog - log level is: ${graylog.level}`});
-		logger.transports$.graylog.level = graylog.level;
+		logger.log({level: "info", message: `graylog - log level is: ${options?.graylog?.level}`});
+		logger.transports$.graylog.level = options?.graylog?.level;
 	}
 	else {
 		logger.log({level: "info", message: `graylog - cant find logger transport by name`});
 	}
 
 	if (logger.transports$.console) {
-		logger.log({level: "info", message: `console - log level is: ${console.level}`});
-		logger.transports$.console.level = console.level;
+		logger.log({level: "info", message: `console - log level is: ${options?.console?.level}`});
+		logger.transports$.console.level = options?.console?.level;
 	}
 
 	return logger;
