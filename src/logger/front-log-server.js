@@ -1,3 +1,4 @@
+import {toObject} from "#root/common/utils.js";
 import toJson from "json-stringify-safe";
 
 export function initFrontLogServer ({url = "/front/logger", fastify, $app, logger} = {}) {
@@ -12,7 +13,6 @@ export function initFrontLogServer ({url = "/front/logger", fastify, $app, logge
 				if (request.body) {
 
 					let requestBody = await request.body;
-					// console.log("requestBody", requestBody);
 
 					if (typeof requestBody === "string") {
 						try {
@@ -24,8 +24,7 @@ export function initFrontLogServer ({url = "/front/logger", fastify, $app, logge
 
 					logs.forEach((logItem, idx) => {
 						try {
-
-							let {message, content, error, timestamp, pageUrl} = ((typeof logItem === "string") ? {message: logItem} : (logItem || {}));
+							let {message, content, error, timestamp, pageUrl, logId} = ((typeof logItem === "string") ? {message: logItem} : (logItem || {}));
 							const logObject = {
 								idx,
 							};
@@ -37,33 +36,20 @@ export function initFrontLogServer ({url = "/front/logger", fastify, $app, logge
 								logObject.error = toJson(error);
 							}
 							if (timestamp) {
-								logObject.timestamp = timestamp;
+								logObject.logTime = (new Date(timestamp)).toLocaleString("uk");
 							}
 							if (pageUrl) {
 								logObject.pageUrl = pageUrl;
 							}
-							try {
-								logger?.log?.({
-									level: "info",
-									message: `[front log] [simple] ${message || "no-message"}`,
-									sessionId,
-									traceId,
-									...logObject,
-								});
 
-								logger?.log?.({
-									level: "info",
-									message: `[front log] ${message || "no-message"}`,
-									sessionId,
-									traceId,
-									clientIp: request?.ip,
-									rawIp: request?.raw?.connection?.remoteAddress,
-									...logObject,
-								});
-							}
-							catch (error) {
-								console.log("front logger error", error, message);
-							}
+							$app.logger.log({
+								level: "info",
+								message: `[front log] ${message || "no-message"}`,
+								logId: logId && `${logId}-${Date.now().toString().substr(-7)}`,
+								...logObject,
+								sessionId,
+								traceId,
+							});
 
 						}
 						catch (error) {
@@ -95,7 +81,9 @@ export function initFrontLogServer ({url = "/front/logger", fastify, $app, logge
 					"trace-id": traceId,
 					"cache-control": "no-store, max-age=0, must-revalidate",
 				})
-				.send(JSON.stringify({result: "ok"}));
+				.send(JSON.stringify({
+					result: "ok",
+				}));
 		},
 	});
 }
